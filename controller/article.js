@@ -32,7 +32,7 @@ module.exports = {
         try {
 
             const queryObject = url.parse(req.url, true).query;
-            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip).sort('externalId')
+            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip)
             res.send({ articles, statusCode: 200 })
 
         } catch (error) {
