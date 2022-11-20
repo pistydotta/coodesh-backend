@@ -32,7 +32,7 @@ module.exports = {
         try {
 
             const queryObject = url.parse(req.url, true).query;
-            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip)
+            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip).sort('externalId')
             res.send({ articles, statusCode: 200 })
 
         } catch (error) {
@@ -147,6 +147,37 @@ module.exports = {
             })
         }
         return res.send({ message: "Banco de dados populado com sucesso", statusCode: 200 })
+    },
+
+    checkForNewArticles: async (req, res) => {
+        const articles = await Article.find({createdInternally: false})
+        let articlesInDatabaseCount = articles.length
+        let response = await axios.get(spaceflightnewsUrl + `/articles/count`)
+        let articlesInApiCount = response.data
+        let missingArticleCount = articlesInApiCount - articlesInDatabaseCount
+        if (missingArticleCount == 0) return res.send({statusCode: 200, message: "Todos os artigos já estão no banco de dados"})
+        else {
+            response = await axios.get(spaceflightnewsUrl + `/articles?_sort=id&_limit=${missingArticleCount}&_start=${articlesInDatabaseCount}`)
+            await response.data.forEach(o => {
+                const { id, title, url, imageUrl, newsSite, summary, publishedAt, updatedAt, featured, launches, events } = o
+                    Article.create({
+                        externalId: id,
+                        title,
+                        url,
+                        imageUrl,
+                        newsSite,
+                        summary,
+                        publishedAt,
+                        updatedAt,
+                        featured,
+                        launches,
+                        events,
+                        deleted: false,
+                        createdInternally: false
+                    })
+            })
+            return res.send({message: `${missingArticleCount} artigos foram baixados para o banco de dados`, statusCode: 200})
+        }
     }
 
 
