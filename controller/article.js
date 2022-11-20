@@ -61,6 +61,54 @@ module.exports = {
 
     },
 
+    update: async (req, res) => {
+
+        try {
+
+            const article = await Article.findOne({ externalId: req.params.id })
+            if (!article) return res.send({ message: "Artigo com o id fornecido não existe no banco de dados", statusCode: 500 })
+            const { title, url, imageUrl, newsSite, summary, publishedAt, updatedAt, featured, launches, events } = req.body
+            article.title = title
+            article.url = url
+            article.imageUrl = imageUrl
+            article.newsSite = newsSite
+            article.summary = summary
+            article.publishedAt = publishedAt
+            article.updatedAt = updatedAt
+            article.featured = featured
+            article.launches = launches
+            article.events = events
+            await article.save()
+            res.send({article, statusCode: 200})
+            
+        } catch (error) {
+            
+            console.log(error)
+            res.send({ statusCode: 500, message: "Erro ao processar requisição" })
+
+        }
+    },
+
+    deleteArticle: async (req,res) => {
+
+        try {
+
+            const article = await Article.findOne({ externalId: req.params.id })
+            if (!article) return res.send({ message: "Artigo com o id fornecido não existe no banco de dados", statusCode: 500 })
+            if (article.deleted) return res.send({ message: "Artigo já foi excluido do banco de dados", statusCode: 500})
+            article.deleted = true
+            await article.save()
+            res.send({article, statusCode: 200})
+            
+        } catch (error) {
+
+            console.log(error)
+            res.send({ statusCode: 500, message: "Erro ao processar requisição" })
+            
+        }
+
+    },
+
     populateDatabase: async (req, res) => {
 
         let failedArticles = []
