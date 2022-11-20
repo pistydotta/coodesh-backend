@@ -13,7 +13,8 @@ let ArticleSchema = new Schema({
     featured: Boolean,
     launches: [{id: String, provider: String}],
     events: [{id: Number, provider: String}],
-	deleted: Boolean
+	deleted: Boolean,
+    createdInternally: Boolean
 })
 
 module.exports = mongoose.model('Article', ArticleSchema)
