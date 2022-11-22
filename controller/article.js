@@ -30,11 +30,17 @@ module.exports = {
     getAll: async (req, res) => {
 
         try {
+
             const queryObject = url.parse(req.url, true).query;
+            
             let sortIdx = 0
             if (queryObject.sortBy && queryObject.sortBy == 'oldest') sortIdx = 1
             else if (queryObject.sortBy && queryObject.sortBy == 'newest') sortIdx = -1
-            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
+
+            let skip = queryObject.skip ? queryObject.skip : 0
+            let limit = queryObject.limit ? queryObject.limit : 0
+            
+            const articles = await Article.find({ deleted: false }).limit(limit).skip(skip).sort({updatedAt: sortIdx})
             res.send({ articles, statusCode: 200 })
 
         } catch (error) {
@@ -67,11 +73,18 @@ module.exports = {
 
         
         try {
+
             const queryObject = url.parse(req.url, true).query;
+
             let sortIdx = 0
             if (queryObject.sortBy && queryObject.sortBy == 'oldest') sortIdx = 1
             else if (queryObject.sortBy && queryObject.sortBy == 'newest') sortIdx = -1
-            const articles = await Article.find({ deleted: false, title: {$regex: queryObject.search} }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
+
+            let skip = queryObject.skip ? queryObject.skip : 0
+            let limit = queryObject.limit ? queryObject.limit : 0
+            let search = queryObject.search ? queryObject.search : ''
+
+            const articles = await Article.find({ deleted: false, title: {$regex: search} }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
             res.send({ articles, statusCode: 200 })
             
         } catch (error) {
