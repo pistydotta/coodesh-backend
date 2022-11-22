@@ -30,9 +30,11 @@ module.exports = {
     getAll: async (req, res) => {
 
         try {
-
             const queryObject = url.parse(req.url, true).query;
-            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip)
+            let sortIdx = 0
+            if (queryObject.sortBy && queryObject.sortBy == 'oldest') sortIdx = 1
+            else if (queryObject.sortBy && queryObject.sortBy == 'newest') sortIdx = -1
+            const articles = await Article.find({ deleted: false }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
             res.send({ articles, statusCode: 200 })
 
         } catch (error) {
@@ -54,6 +56,26 @@ module.exports = {
 
         } catch (error) {
 
+            console.log(error)
+            res.send({ statusCode: 500, message: "Erro ao processar requisição" })
+
+        }
+
+    },
+
+    searchByTitle: async (req, res) => {
+
+        
+        try {
+            const queryObject = url.parse(req.url, true).query;
+            let sortIdx = 0
+            if (queryObject.sortBy && queryObject.sortBy == 'oldest') sortIdx = 1
+            else if (queryObject.sortBy && queryObject.sortBy == 'newest') sortIdx = -1
+            const articles = await Article.find({ deleted: false, title: {$regex: queryObject.search} }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
+            res.send({ articles, statusCode: 200 })
+            
+        } catch (error) {
+            
             console.log(error)
             res.send({ statusCode: 500, message: "Erro ao processar requisição" })
 
