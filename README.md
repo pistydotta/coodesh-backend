@@ -12,3 +12,7 @@ Axios
 Variáveis de ambiente necessárias para executar o projeto (em um arquivo .env):
 DATABASE_URL = URL do mongoDB
 PORT = Porta para executar a aplicação, irá utilizar 3000 como default
+
+Para executar a aplicação rode:
+npm i
+node server.js
