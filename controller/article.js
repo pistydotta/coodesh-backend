@@ -1,26 +1,28 @@
 const Article = require('../models/article')
 const url = require('url');
-const axios = require('axios')
+const axios = require('axios');
 const spaceflightnewsUrl = 'https://api.spaceflightnewsapi.net/v3'
+const moment = require('moment')
 
 module.exports = {
 
     create: async (req, res) => {
-        const { id, title, url, imageUrl, newsSite, summary, publishedAt, updatedAt, featured, launches, events } = req.body
-        const articleAlreadyExists = await Article.findOne({externalId: id})
+        const { externalId, title, url, imageUrl, newsSite, summary} = req.body
+        let currDate = moment().format("YYYY-MM-DDTHH:mm:ss.SSS")
+        const articleAlreadyExists = await Article.findOne({externalId})
         if (articleAlreadyExists) return res.send({message: "Já existe um artigo com esse id no banco de dados", statusCode: 500})
         const article = await Article.create({
-            externalId: id,
+            externalId,
             title,
             url,
             imageUrl,
             newsSite,
             summary,
-            publishedAt,
-            updatedAt,
-            featured,
-            launches,
-            events,
+            publishedAt: currDate,
+            updatedAt: currDate,
+            featured: false,
+            launches: [],
+            events: [],
             deleted: false,
             createdInternally: true
         })
@@ -58,6 +60,7 @@ module.exports = {
 
             const article = await Article.findOne({ externalId: req.params.id })
             if (!article) return res.send({ message: "Artigo com o id fornecido não existe no banco de dados", statusCode: 500 })
+            if (article.deleted) return res.send({message: "Artigo foi excluido do banco de dados", statusCode: 500})
             res.send({ article, statusCode: 200 })
 
         } catch (error) {
