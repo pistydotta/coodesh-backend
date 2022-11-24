@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const { create, getAll, getById, populateDatabase, update, deleteArticle, checkForNewArticles, searchByTitle } = require('../controller/article')
-const axios = require('axios')
 
 
 router.get('/articles', getAll)

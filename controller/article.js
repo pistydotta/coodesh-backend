@@ -87,7 +87,7 @@ module.exports = {
             let limit = queryObject.limit ? queryObject.limit : 0
             let search = queryObject.search ? queryObject.search : ''
 
-            const articles = await Article.find({ deleted: false, title: {$regex: search} }).limit(queryObject.limit).skip(queryObject.skip).sort({updatedAt: sortIdx})
+            const articles = await Article.find({ deleted: false, title: {$regex: search} }).limit(limit).skip(skip).sort({updatedAt: sortIdx})
             res.send({ articles, statusCode: 200 })
             
         } catch (error) {
